@@ -1,16 +1,20 @@
-FROM golang:1.9.2 as builder
-ARG SOURCE_LOCATION=/
-WORKDIR ${SOURCE_LOCATION}
+FROM golang:1.9.2
+
+ENV GOBIN /go/bin
+
+ADD . /go/src/github.com/vic3r/Currency-Recognition/
+WORKDIR /go/src/github.com/vic3r/Currency-Recognition/
+
 RUN go get -d -v github.com/gorilla/mux \
 	&& go get -d -v gopkg.in/mgo.v2/bson \
 	&& go get -d -v gopkg.in/mgo.v2
-COPY . .
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o app .
 
-FROM alpine:latest  
-ARG SOURCE_LOCATION=/
-RUN apk --no-cache add curl
-EXPOSE 9090
-WORKDIR /root/
-COPY --from=builder ${SOURCE_LOCATION} .
-CMD ["./app"]  
+RUN set -x && \
+    go get github.com/golang/dep/cmd/dep && \
+dep ensure -v
+
+
+WORKDIR /go/src/github.com/vic3r/Currency-Recognition/cmd/currency
+RUN CGO_ENABLED=1 go build -i -o ../../Currency-Recognition
+WORKDIR /go/src/github.com/vic3r/Currency-Recognition/
+ENTRYPOINT ./Currency-Recognition
