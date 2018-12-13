@@ -1,13 +1,13 @@
 package errors
 
-// ErrResponse is an error std implementation for response
-type ErrResponse struct {
+// ErrorResponse is a struct for error response
+type ErrorResponse struct {
 	Name string
 	Code int
 }
 
-var _ error = &ErrResponse{}
+var _ error = &ErrorResponse{}
 
-func (e *ErrResponse) Error() string {
+func (e *ErrorResponse) Error() string {
 	return e.Name
 }
